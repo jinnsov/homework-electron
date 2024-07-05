@@ -1,7 +1,15 @@
 <script setup>
 import Versions from './components/Versions.vue'
+import {ref} from "vue";
 
 const ipcHandle = () => window.electron.ipcRenderer.send('ping')
+const scanDir = ref([])
+function dir() {
+  window.electron.ipcRenderer
+    .invoke('dir', '.')
+    .then((files) => (scanDir.value = files))
+    .catch(console.error)
+}
 </script>
 
 <template>
@@ -19,6 +27,12 @@ const ipcHandle = () => window.electron.ipcRenderer.send('ping')
     <div class="action">
       <a target="_blank" rel="noreferrer" @click="ipcHandle">Send IPC</a>
     </div>
+    <div>
+      <button type="submit" @click="dir">Файлы</button>
+    </div>
+    <ul>
+      <li v-for="files in scanDir" :key="files">{{ files }}</li>
+    </ul>
   </div>
   <Versions />
 </template>
