@@ -3,13 +3,17 @@ import Versions from './components/Versions.vue'
 import { ref } from 'vue'
 
 const ipcHandle = () => window.electron.ipcRenderer.send('ping')
-const scanDir = ref([])
-function dir() {
+const dir = ref([])
+window.electron.ipcRenderer.on('files', (_, files) => {
+  dir.value = files
+})
+const scanDir = () => {
   window.electron.ipcRenderer
-    .invoke('dir', '.')
-    .then((files) => (scanDir.value = files))
+    .invoke('dir', './build')
+    .then((files) => (dir.value = files))
     .catch(console.error)
 }
+window.electron.ipcRenderer.send('watch', './build')
 </script>
 
 <template>
@@ -28,10 +32,10 @@ function dir() {
       <a target="_blank" rel="noreferrer" @click="ipcHandle">Send IPC</a>
     </div>
     <div>
-      <button type="submit" @click="dir">Файлы</button>
+      <button type="submit" @click="scanDir">Файлы</button>
     </div>
     <ul>
-      <li v-for="files in scanDir" :key="files">{{ files }}</li>
+      <li v-for="files in dir" :key="files">{{ files }}</li>
     </ul>
   </div>
   <Versions />
