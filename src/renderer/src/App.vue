@@ -1,6 +1,6 @@
 <script setup>
 import Versions from './components/Versions.vue'
-import {ref} from "vue";
+import { ref } from 'vue'
 
 const ipcHandle = () => window.electron.ipcRenderer.send('ping')
 const scanDir = ref([])
