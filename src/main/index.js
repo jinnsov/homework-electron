@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import * as fs from 'fs'
 
 function createWindow() {
   // Create the browser window.
@@ -72,3 +73,18 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+
+function readDir(dir) {
+  return new Promise((resolve, reject) => {
+    fs.readdir(dir, { withFileTypes: true }, (error, files) => {
+      if (error) return reject(error)
+      resolve(files.filter((e) => e.isFile()).map((e) => e.name))
+    })
+  })
+}
+ipcMain.on('watch', (event, dir) => {
+  fs.watch(dir, () => {
+    readDir(dir).then((files) => event.reply('files', files))
+  })
+})
+ipcMain.handle('dir', (_, dir) => readDir(dir))
