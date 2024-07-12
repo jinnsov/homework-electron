@@ -1,9 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, path} from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import * as fs from 'fs'
-
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -75,10 +74,24 @@ app.on('window-all-closed', () => {
 // code. You can also put them in separate files and require them here.
 
 function readDir(dir) {
+  //console.log(dialog.showOpenDialog({ properties: ['openDirectory'], defaultPath: 'y:/' }))
   return new Promise((resolve, reject) => {
     fs.readdir(dir, { withFileTypes: true }, (error, files) => {
       if (error) return reject(error)
-      resolve(files.filter((e) => e.isFile()).map((e) => e.name))
+      resolve(
+        files
+          .filter((e) => e.isFile())
+          .filter(
+            (f) =>
+              f.name.endsWith('.jpg') ||
+              f.name.endsWith('.jpeg') ||
+              f.name.endsWith('.png') ||
+              f.name.endsWith('.bmp') ||
+              f.name.endsWith('.jpeg') ||
+              f.name.endsWith('.gif')
+          )
+          .map((e) => e.name)
+      )
     })
   })
 }
@@ -88,3 +101,28 @@ ipcMain.on('watch', (event, dir) => {
   })
 })
 ipcMain.handle('dir', (_, dir) => readDir(dir))
+
+ipcMain.handle('getFile', (_, file) => {
+  //console.log(file)
+  return fs.readFileSync(file).toString('base64')
+})
+
+ipcMain.handle('getDir', async () => {
+  const ret = dialog
+    .showOpenDialog({ properties: ['openDirectory'] })
+    .then((result) => {
+      /*console.log(result.canceled)
+      console.log(result.filePaths)*/
+      return result
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  return await ret
+})
+
+/*ipcMain.handle('getDir', () => {
+  return dialog.showOpenDialogSync({
+    properties: ['openDirectory', 'openFile']
+  })
+})*/
