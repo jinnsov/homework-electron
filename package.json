@@ -1,10 +1,15 @@
 {
   "name": "2024-07-05-otus-electron",
   "version": "1.0.0",
-  "description": "An Electron application with Vue",
+  "description": "Image Viewer",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "Otus by Evgeny K",
+  "homepage": "https://otus.ru/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jinnsov/homework-electron.git/lesson17"
+  },
+  "license": "Otus free",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
