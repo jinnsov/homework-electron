@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog, path} from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, path } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -119,6 +119,11 @@ ipcMain.handle('getDir', async () => {
       console.log(err)
     })
   return await ret
+})
+ipcMain.handle('getFileStat', (_, file) => {
+  // Getting information for a file
+  console.log('getFile' + file)
+  return fs.statSync(file)
 })
 
 /*ipcMain.handle('getDir', () => {
