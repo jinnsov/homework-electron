@@ -9,15 +9,21 @@
     </ul>
   </div>
   <div class="wrapper2">
-    <img alt="logo" class="img_class logo" :src="file" height="128" width="128" />
+    <Loading :is-show="isLoad">
+      <img alt="logo" class="img_class logo" :src="file" />
+      {{ fileName }}
+    </Loading>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref, watch } from 'vue'
+import Loading from './Loading.vue'
 const dir = ref([])
 const dirC = ref('')
 const file = ref('')
+const fileName = ref('')
+const isLoad = ref(false)
 const scanDir = () => {
   window.electron.ipcRenderer
     .invoke('dir', dirC.value)
@@ -25,11 +31,14 @@ const scanDir = () => {
     .catch(console.error)
 }
 
-const imgView = (fileName) => {
-  window.electron.ipcRenderer
-    .invoke('getFile', dirC.value + fileName)
+const imgView = async (selectedFileName) => {
+  isLoad.value = true
+  fileName.value = selectedFileName
+  await window.electron.ipcRenderer
+    .invoke('getFile', dirC.value + selectedFileName)
     .then((base64) => (file.value = `data:image/jpg;base64,${base64}`))
     .catch(console.error)
+  isLoad.value = false
 }
 const getDir = async () => {
   const getDir = await window.electron.ipcRenderer.invoke('getDir').catch((err) => {
@@ -40,8 +49,8 @@ const getDir = async () => {
   await scanDir()
 }
 watch(dir, () => {
-  console.log(dirC.value)
-  window.electron.ipcRenderer.send('watch', dirC.value)
+  //console.log(dirC.value)
+  //window.electron.ipcRenderer.send('watch', dirC.value)
 })
 window.electron.ipcRenderer.on('files', (_, files) => {
   dir.value = files

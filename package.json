@@ -7,7 +7,7 @@
   "homepage": "https://otus.ru/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jinnsov/homework-electron.git/lesson17"
+    "url": "git+https://github.com/jinnsov/homework-electron.git/"
   },
   "license": "Otus free",
   "scripts": {

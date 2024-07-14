@@ -15,7 +15,7 @@ const ipcHandle = () => window.electron.ipcRenderer.send('ping')
   <header><h1>Просмотр изображений</h1></header>
   <ImageView></ImageView>
   <footer>
-    <div class="actions">
+<!--    <div class="actions">
       <div class="action">
         <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">Documentation</a>
       </div>
@@ -23,7 +23,7 @@ const ipcHandle = () => window.electron.ipcRenderer.send('ping')
         <a target="_blank" rel="noreferrer" @click="ipcHandle">Send IPC</a>
       </div>
     </div>
-    <p class="tip">Please try pressing <code>F12</code> to open the devTool</p>
-    <Versions />
+    <p class="tip">Please try pressing <code>F12</code> to open the devTool</p>-->
+<!--    <Versions />-->
   </footer>
 </template>
