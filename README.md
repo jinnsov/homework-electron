@@ -1,6 +1,6 @@
 # 2024-07-05-otus-electron
 
-An Electron application with Vue
+An Electron application (Image Viewer) with Vue
 
 ## Recommended IDE Setup
 
