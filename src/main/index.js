@@ -74,6 +74,7 @@ app.on('window-all-closed', () => {
 // code. You can also put them in separate files and require them here.
 
 function readDir(dir) {
+  // get images file
   //console.log(dialog.showOpenDialog({ properties: ['openDirectory'], defaultPath: 'y:/' }))
   return new Promise((resolve, reject) => {
     fs.readdir(dir, { withFileTypes: true }, (error, files) => {
@@ -96,14 +97,18 @@ function readDir(dir) {
   })
 }
 ipcMain.on('watch', (event, dir) => {
+  // watch dir change:
   fs.watch(dir, () => {
     readDir(dir).then((files) => event.reply('files', files))
   })
 })
-ipcMain.handle('dir', (_, dir) => readDir(dir))
+ipcMain.handle('dir', (_, dir) =>
+  //get list of files name:
+  readDir(dir)
+)
 
 ipcMain.handle('getFile', (_, file) => {
-  //console.log(file)
+  //get file as base64
   return fs.readFileSync(file).toString('base64')
 })
 
@@ -121,13 +126,6 @@ ipcMain.handle('getDir', async () => {
   return await ret
 })
 ipcMain.handle('getFileStat', (_, file) => {
-  // Getting information for a file
-  console.log('getFile' + file)
+  // getting information for a file
   return fs.statSync(file)
 })
-
-/*ipcMain.handle('getDir', () => {
-  return dialog.showOpenDialogSync({
-    properties: ['openDirectory', 'openFile']
-  })
-})*/

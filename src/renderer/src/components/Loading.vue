@@ -4,7 +4,9 @@
 </template>
 
 <script setup>
-defineProps(['isShow'])
+defineProps({
+  isShow: Boolean
+})
 </script>
 
 <style></style>

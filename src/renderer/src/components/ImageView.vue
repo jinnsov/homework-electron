@@ -15,10 +15,10 @@
         <pre>
           {{ 'файл: ' + fileName }}
           {{ 'размер: ' + humanFileSize(fileStat.size) }}
-          {{ 'дата последнего обращения: ' + new Date(fileStat.atimeMs).toLocaleString() }}
+          {{ 'дата обращения: ' + new Date(fileStat.atimeMs).toLocaleString() }}
           {{ 'дата создания: ' + new Date(fileStat.birthtimeMs).toLocaleString() }}
-          {{ 'дата последней модификации прав доступа или владельца : ' + new Date(fileStat.ctimeMs).toLocaleString() }}
-          {{ 'дата последнего изменения содержимого: ' + new Date(fileStat.mtimeMs).toLocaleString() }}
+          {{ 'дата модификации прав доступа или владельца : ' + new Date(fileStat.ctimeMs).toLocaleString() }}
+          {{ 'дата изменения содержимого: ' + new Date(fileStat.mtimeMs).toLocaleString() }}
         </pre>
       </Loading>
     </div>
@@ -122,10 +122,11 @@ body {
   padding: 30px;
 }
 .logo {
-  margin-bottom: 10px;
   -webkit-user-drag: none;
-  height: 300px;
-  width: 400px;
+  /*height: 300px;
+  width: 400px;*/
+  max-height: 350px;
+  object-fit: Contain;
   will-change: filter;
   transition: filter 300ms;
 }
