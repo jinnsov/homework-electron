@@ -1,29 +1,46 @@
 <template>
-  <div class="wrapper1">
-    <div class="action">
-      <a target="_blank" rel="noreferrer" @click="getDir">Выбор каталога</a>
-      {{ catalogPath }}
-    </div>
-    <ul>
-      <li v-for="files in fileList" :key="files" @click="imgView(files)">{{ files }}</li>
-    </ul>
+  <div class="action">
+    <a target="_blank" rel="noreferrer" @click="getDir">Выбор каталога</a>
+    {{ catalogPath }}
   </div>
-  <div class="wrapper2">
-    <div v-if="imgBase64.length > 0">
-      <Loading :is-show="isLoad">
-        <img alt="image" class="logo" :src="imgBase64" />
-        <pre>
-          {{ 'файл: ' + fileName }}
-          {{ 'размер: ' + humanFileSize(fileStat.size) }}
-          {{ 'дата обращения: ' + new Date(fileStat.atimeMs).toLocaleString() }}
-          {{ 'дата создания: ' + new Date(fileStat.birthtimeMs).toLocaleString() }}
-          {{ 'дата модификации прав доступа или владельца : ' + new Date(fileStat.ctimeMs).toLocaleString() }}
-          {{ 'дата изменения содержимого: ' + new Date(fileStat.mtimeMs).toLocaleString() }}
-        </pre>
-      </Loading>
+  <div class="image-view">
+    <div class="left-block">
+      <ul id="output">
+        <li v-for="file in fileList" :key="file" @click="imgView(file)">{{ file }}</li>
+      </ul>
     </div>
-    <div v-else>
-      <img alt="no image" class="img_class logo" src="./../assets/electron.svg" />
+    <div class="right-block">
+      <div v-if="imgBase64.length > 0">
+        <Loading :is-show="isLoad">
+          <div class="image-block">
+            <div class="image-canvas">
+              <img alt="image" class="logo" :src="imgBase64" />
+            </div>
+            <div class="image-info">
+              <p style="background-color: #515c67; padding: 10px">
+                <span class="caption">файл: </span><span>{{ fileName }}</span
+                ><br />
+                <span class="caption">размер: </span><span>{{ humanFileSize(fileStat.size) }}</span
+                ><br />
+                <span class="caption">дата обращения: </span
+                ><span>{{ new Date(fileStat.atimeMs).toLocaleString() }}</span
+                ><br />
+                <span class="caption">дата создания: </span
+                ><span>{{ new Date(fileStat.birthtimeMs).toLocaleString() }}</span
+                ><br />
+                <span class="caption">дата модификации прав владельца: </span
+                ><span>{{ new Date(fileStat.ctimeMs).toLocaleString() }}</span
+                ><br />
+                <span class="caption">дата изменения содержимого: </span
+                ><span>{{ new Date(fileStat.mtimeMs).toLocaleString() }}</span>
+              </p>
+            </div>
+          </div>
+        </Loading>
+      </div>
+      <div v-else>
+        <img alt="no image" class="img_class logo" src="./../assets/electron.svg" />
+      </div>
     </div>
   </div>
 </template>
@@ -82,7 +99,7 @@ window.electron.ipcRenderer.on('files', (_, files) => {
   fileList.value = files
 })
 function humanFileSize(size) {
-  const i = size === 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+  const i = size === 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024))
   return `${+(size / Math.pow(1024, i)).toFixed(2)} ${['Б', 'кБ', 'МБ', 'ГБ', 'ТБ'][i]}`
 }
 onMounted(() => {
@@ -91,6 +108,22 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.image-view {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.image-view:first-child {
+  margin-left: 20px;
+}
+
+.image-view:last-child {
+  margin-right: 20px;
+}
+
 /*img {
   background-image: url('./../assets/electron.svg');
   width: 400px;
@@ -102,25 +135,15 @@ li {
 li:hover {
   color: palegoldenrod;
 }
-body {
-  max-width: 1170px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 16px;
-  padding-right: 16px;
+.left-block {
+  width: 600px;
+  max-width: 300px;
 }
-.wrapper1 {
-  height: 10px;
-  width: 800px;
-  max-width: 100%;
-  padding: 10px;
+
+.right-block {
+  width: 100%;
 }
-.wrapper2 {
-  height: 400px;
-  width: 10px;
-  max-width: 100%;
-  padding: 30px;
-}
+
 .logo {
   -webkit-user-drag: none;
   /*height: 300px;
@@ -133,5 +156,41 @@ body {
 
 .logo:hover {
   filter: drop-shadow(0 0 1.2em #6988e6aa);
+}
+#output {
+  overflow: scroll;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 15px 5px 5px;
+  width: 100%;
+  height: 500px;
+  white-space: pre;
+  box-shadow: inset 0 0 6px rgba(166, 44, 44, 0.3);
+  scrollbar-width: thin;
+  scrollbar-color: #151414 #d9d6ce;
+}
+
+.image-block {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.image-canvas {
+}
+.image-info {
+}
+
+.image-info span {
+  color: #f0f0f0;
+}
+
+.image-info .caption {
+  color: #b0b0b0;
+  font-size: 14px;
+}
+
+.action {
+  white-space: nowrap;
 }
 </style>
