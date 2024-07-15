@@ -13,7 +13,7 @@ import ImageView from './components/ImageView.vue'
   </div>
   -->
   <div id="app">
-    <header><h1>Просмотр изображений (*.jpg, *.jpeg, *.gif, , *.png и *.bmp)</h1></header>
+    <header style="padding-left: 70px"><h1>Просмотр изображений (*.jpg, *.jpeg, *.gif, *.png и *.bmp)</h1></header>
     <ImageView class="content"></ImageView>
     <!--    <div class="actions">
           <div class="action">
@@ -24,7 +24,7 @@ import ImageView from './components/ImageView.vue'
           </div>
         </div>
         <p class="tip">Please try pressing <code>F12</code> to open the devTool</p>-->
-    <Versions />
+    <div style="padding-left: 200px"><Versions /></div>
   </div>
 </template>
 
