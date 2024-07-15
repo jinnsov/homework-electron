@@ -13,7 +13,9 @@ import ImageView from './components/ImageView.vue'
   </div>
   -->
   <div id="app">
-    <header style="padding-left: 70px"><h1>Просмотр изображений (*.jpg, *.jpeg, *.gif, *.png и *.bmp)</h1></header>
+    <header style="padding-left: 70px">
+      <h1>Просмотр изображений (*.jpg, *.jpeg, *.gif, *.png и *.bmp)</h1>
+    </header>
     <ImageView class="content"></ImageView>
     <!--    <div class="actions">
           <div class="action">
