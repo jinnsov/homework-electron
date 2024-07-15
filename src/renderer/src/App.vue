@@ -26,7 +26,7 @@ import ImageView from './components/ImageView.vue'
           </div>
         </div>
         <p class="tip">Please try pressing <code>F12</code> to open the devTool</p>-->
-    <div style="padding-left: 200px"><Versions /></div>
+    <footer style="padding-left: 200px"><Versions /></footer>
   </div>
 </template>
 
