@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch, reactive } from 'vue'
+import {onMounted, ref, watch, reactive, computed} from 'vue'
 import Loading from './Loading.vue'
 const fileList = ref([])
 const catalogPath = ref('')

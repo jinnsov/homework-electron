@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import * as fs from 'fs'
+import {exif} from "./exif";
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -127,5 +128,7 @@ ipcMain.handle('getDir', async () => {
 })
 ipcMain.handle('getFileStat', (_, file) => {
   // getting information for a file
-  return fs.statSync(file)
+  const o = exif(file)
+  console.info(o)
+  return fs.statSync(o)
 })
