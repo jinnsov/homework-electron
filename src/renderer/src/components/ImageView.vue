@@ -1,7 +1,11 @@
 <template>
   <div class="action">
-    <a target="_blank" rel="noreferrer" @click="getDir">Выбор каталога</a>
+    <a target="_blank" rel="noreferrer" @click="getDir">Открыть из</a>
     {{ catalogPath }}
+  </div>
+  <div class="action">
+    <a target="_blank" rel="noreferrer" @click="distanceDir">Копировать в</a>
+    {{ distancePath }}
   </div>
   <div class="image-view">
     <div class="left-block">
@@ -9,6 +13,7 @@
         <li v-for="file in fileList" :key="file" @click="imgView(file)">{{ file }}</li>
       </ul>
     </div>
+    <button @click="copyFiles">Копировать</button>
     <div class="right-block">
       <div v-if="imgBase64.length > 0">
         <Loading :is-show="isLoad">
@@ -50,6 +55,7 @@ import {onMounted, ref, watch, reactive, computed} from 'vue'
 import Loading from './Loading.vue'
 const fileList = ref([])
 const catalogPath = ref('')
+const distancePath = ref('')
 const imgBase64 = ref('')
 const fileName = ref('')
 const isLoad = ref(false)
@@ -79,6 +85,26 @@ const getDir = async () => {
   const filePath = getDir.filePaths[0]
   catalogPath.value = filePath.endsWith('\\') ? filePath : filePath + '\\'
   await scanDir()
+}
+const distanceDir = async () => {
+  imgBase64.value = ''
+  const getDir = await window.electron.ipcRenderer.invoke('getDir').catch((err) => {
+    console.log(err)
+  })
+  const filePath = getDir.filePaths[0]
+  distancePath.value = filePath.endsWith('\\') ? filePath : filePath + '\\'
+  await scanDir()
+}
+const copyFiles = async () => {
+  console.log('copyFiles')
+  const files = [...fileList.value]
+  const source = catalogPath.value
+  const distance = distancePath.value
+  const copy = await window.electron.ipcRenderer
+    .invoke('copyFiles', files, source, distance)
+    .catch((err) => {
+      console.error(err)
+    })
 }
 const getFileStat = async (file) => {
   const getStat = await window.electron.ipcRenderer.invoke('getFileStat', file).catch((err) => {

@@ -132,3 +132,17 @@ ipcMain.handle('getFileStat', (_, file) => {
   console.info(o)
   return fs.statSync(o)
 })
+ipcMain.handle('copyFiles', async (_, files, source, distance) => {
+  // Синхронное копирование
+  console.log(source)
+  try {
+    for (let file of files) {
+      await fs.copyFileSync(source + file, distance + file)
+      console.log('Скопирован файл ' + file)
+    }
+  } catch (err) {
+    console.error(err)
+    return false
+  }
+  return true
+})
