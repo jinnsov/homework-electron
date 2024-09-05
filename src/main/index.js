@@ -3,7 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import * as fs from 'fs'
-import {exif} from "./exif";
+import { exif4 } from './exif'
+
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -32,7 +33,7 @@ function createWindow() {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadFile(join(__dirname, '../renderer2/index.html'))
   }
 }
 
@@ -86,13 +87,16 @@ function readDir(dir) {
           .filter(
             (f) =>
               f.name.endsWith('.jpg') ||
-              f.name.endsWith('.jpeg') ||
-              f.name.endsWith('.png') ||
-              f.name.endsWith('.bmp') ||
-              f.name.endsWith('.jpeg') ||
-              f.name.endsWith('.gif')
+              f.name.endsWith('.jpeg')
           )
-          .map((e) => e.name)
+          .map((e) => {
+            return { path: e.path, name: e.name}
+          })
+        /*          .map(async (e) => {
+            const exf = JSON.stringify(await exif4(e))
+            console.log('-> ', exf)
+            return { path: e.path, name: e.name, exif: exf }
+          })*/
       )
     })
   })
@@ -107,7 +111,10 @@ ipcMain.handle('dir', (_, dir) =>
   //get list of files name:
   readDir(dir)
 )
-
+ipcMain.handle('exif', (_, file) =>
+  //get exif:
+  exif4(file)
+)
 ipcMain.handle('getFile', (_, file) => {
   //get file as base64
   return fs.readFileSync(file).toString('base64')
@@ -128,10 +135,12 @@ ipcMain.handle('getDir', async () => {
 })
 ipcMain.handle('getFileStat', (_, file) => {
   // getting information for a file
-  const o = exif(file)
-  console.info(o)
-  return fs.statSync(o)
+  process.stdout.write('get stats for ' + file)
+  //const o = exif(file)
+  //console.info(o)
+  return fs.statSync(file)
 })
+
 ipcMain.handle('copyFiles', async (_, files, source, distance) => {
   // Синхронное копирование
   console.log(source)
