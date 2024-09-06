@@ -84,13 +84,9 @@ function readDir(dir) {
       resolve(
         files
           .filter((e) => e.isFile())
-          .filter(
-            (f) =>
-              f.name.endsWith('.jpg') ||
-              f.name.endsWith('.jpeg')
-          )
+          .filter((f) => f.name.endsWith('.jpg') || f.name.endsWith('.jpeg'))
           .map((e) => {
-            return { path: e.path, name: e.name}
+            return { path: e.path, name: e.name }
           })
       )
     })
