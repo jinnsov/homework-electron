@@ -92,11 +92,6 @@ function readDir(dir) {
           .map((e) => {
             return { path: e.path, name: e.name}
           })
-        /*          .map(async (e) => {
-            const exf = JSON.stringify(await exif4(e))
-            console.log('-> ', exf)
-            return { path: e.path, name: e.name, exif: exf }
-          })*/
       )
     })
   })
@@ -146,7 +141,7 @@ ipcMain.handle('copyFiles', async (_, files, source, distance) => {
   console.log(source)
   try {
     for (let file of files) {
-      await fs.copyFileSync(source + file, distance + file)
+      await fs.copyFileSync(source + '/' + file, distance + '/' + file)
       console.log('Скопирован файл ' + file)
     }
   } catch (err) {

@@ -12,7 +12,7 @@
       <SimpleSelect class="mark-combo" :items="marks" @selection-changed="markChanged" />
       <SimpleSelect class="model-combo" :items="models" @selection-changed="modelChanged" />
     </div>
-    <div id="copy-btn" @click="copyFiles">Копировать</div>
+    <div id="copy-btn" @click="copyFiles">{{ copyBtnCaption }}</div>
     <ul id="output">
       <li
         v-for="image in filteredImages"
@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import {computed, ref} from 'vue'
+import { computed, ref } from 'vue'
 import SimpleSelect from './SimpleSelect.vue'
 
 const emit = defineEmits(['changeSource', 'changeTarget', 'changeImage', 'copyFiles'])
@@ -36,6 +36,7 @@ const sourceCatalogPath = ref('')
 const targetCatalogPath = ref('')
 const selectedImage = ref({})
 const marks = ref(['все марки'])
+const copyBtnCaption = ref('Копировать')
 
 const models = ref(['все модели'])
 
@@ -56,11 +57,11 @@ const filteredImages = computed(() => {
   let result = images.value
 
   if (selectedMark.value !== undefined && selectedMark.value !== 'все марки') {
-    result = result.filter(image => image.make === selectedMark.value)
+    result = result.filter((image) => image.make === selectedMark.value)
   }
 
   if (selectedModel.value !== undefined && selectedModel.value !== 'все модели') {
-    result = result.filter(image => image.model === selectedModel.value)
+    result = result.filter((image) => image.model === selectedModel.value)
   }
 
   return result
@@ -88,16 +89,14 @@ const scanDir = async (path) => {
       })
     })
     .then((files) => {
-      for(let file of files) {
+      for (let file of files) {
         getExif(file).then((info) => {
-          console.log(info)
-            file.make = info.make
-            file.model = info.model
-            images.value.push(file)
-            marks.value.add(file.make)
-            models.value.add(file.model)
+          file.make = info.make.replace(/\0/g, '')
+          file.model = info.model.replace(/\0/g, '')
+          images.value.push(file)
+          marks.value.add(file.make)
+          models.value.add(file.model)
         })
-
       } /*
       images.value = filePaths.map(async (f) => {
         const info = await getExif(f)
@@ -112,12 +111,10 @@ const scanDir = async (path) => {
   //   getExif(file)
   // }
   console.log('images.value ->> ', images.value)
-
 }
 
 const getExif = async (file) => {
-  const exifData = await window.electron.ipcRenderer
-    .invoke('exif', file.path + '\\' + file.name)
+  const exifData = await window.electron.ipcRenderer.invoke('exif', file.path + '\\' + file.name)
 
   return exifData
 }
@@ -135,9 +132,24 @@ const modelChanged = (item) => {
   console.log(item)
   selectedModel.value = item
 }
-
-const copyFiles = () => {
+const copyFiles = async () => {
+  copyBtnCaption.value = 'Копирую'
   emit('copyFiles')
+  console.log('copyFiles')
+  const files = [...filteredImages.value.map((images) => images.name)]
+  const source = sourceCatalogPath.value
+  const distance = targetCatalogPath.value
+  const copy = await window.electron.ipcRenderer
+    .invoke('copyFiles', files, source, distance)
+    .then(() => {
+      copyBtnCaption.value = 'Готово'
+      setTimeout(() => {
+        copyBtnCaption.value = 'Копировать'
+      }, 500)
+    })
+    .catch((err) => {
+      console.error(err)
+    })
 }
 </script>
 
@@ -212,7 +224,7 @@ const copyFiles = () => {
   overflow: hidden;
   white-space: nowrap;
   max-width: 180px;
-  direction: rtl;
+  direction: ltr;
 }
 
 #output {

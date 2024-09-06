@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header style="padding-left: 30px">
-      <h1>Работа с изображениями (*.jpg, *.jpeg, *.gif, *.png и *.bmp)</h1>
+      <h1>Поиск и копирование изображений (*.jpg, *.jpeg) по Exif</h1>
     </header>
     <Workplace />
     <footer><Versions /></footer>
