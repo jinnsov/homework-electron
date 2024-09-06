@@ -48,10 +48,12 @@
   const onImageChange = (image) => {
     const fullPath = `${image.path}/${image.name}`
     getImage(fullPath)
-    getFileInfo(fullPath)
+    getFileInfo(fullPath, image)
   }
 
-  const onCopyFilesClick = () => { console.log('copy clicked') }
+  const onCopyFilesClick = () => {
+    console.log('copy clicked')
+  }
 
   const getImage = async (selectedFileName) => {
     isLoad.value = true
@@ -63,19 +65,24 @@
     isLoad.value = false
   }
 
-  const getFileInfo = async (fullPath) => {
+  const getFileInfo = async (fullPath, image) => {
     const stat = await window.electron.ipcRenderer.invoke('getFileStat', fullPath).catch((err) => {
       console.log(err)
     })
-
+    console.log(stat)
     fileInfo.value = (stat === undefined) ? [] : [
-      { caption: 'файл:', value: filePath },
-      { caption: 'размер:', value: stat['size'] },
-      { caption: 'дата обращения:', value: stat['atimeMs'] },
-      { caption: 'дата создания:', value: stat['birthtimeMs'] },
-      { caption: 'дата модификации:', value: stat['mtimeMs'] },
-      { caption: 'дата изменения:', value: stat['ctimeMs'] }
+      { caption: 'файл:', value: image.name },
+      { caption: 'размер:', value: humanFileSize(stat['size']) },
+      { caption: 'дата обращения:', value: new Date(stat['atimeMs']).toLocaleString() },
+      { caption: 'дата создания:', value: new Date(stat['birthtimeMs']).toLocaleString() },
+      { caption: 'дата модификации:', value: new Date(stat['mtimeMs']).toLocaleString() },
+      { caption: 'дата изменения:', value: new Date(stat['ctimeMs']).toLocaleString() }
     ]
+  }
+
+  const humanFileSize = (size) => {
+    const i = size === 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024))
+    return `${+(size / Math.pow(1024, i)).toFixed(2)} ${['Б', 'кБ', 'МБ', 'ГБ', 'ТБ'][i]}`
   }
 
 </script>

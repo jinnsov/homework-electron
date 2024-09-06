@@ -1,7 +1,7 @@
 <template>
   <div class="combo">
     <select @change="handleChange" v-model="selectedItem">
-      <option v-for="item in items" :value="item">{{ item.text }}</option>
+      <option v-for="item in items" :value="item">{{ item }}</option>
     </select>
   </div>
 </template>
@@ -10,12 +10,12 @@
 import { computed, ref } from "vue";
 
 const props = defineProps({
-  items: []
+  items: Array
 })
 
-const items = computed(() => (props.items.length === 0) ? [{text: '*', value: 'all'}] : props.items)
+const items = computed(() => (props.items.length === 0) ? ['*'] : props.items)
 
-const selectedItem = ref(items.value.length > 0 ? items.value[0] : {} )
+const selectedItem = ref(items.value.length > 0 ? items.value[0] : '*')
 
 const handleChange = (item) => {
   emit('selectionChanged', selectedItem.value)

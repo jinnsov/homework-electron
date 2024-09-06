@@ -36,8 +36,8 @@ export async function exif3(file) {
   })
 }
 
-export async function exif4(file) {
-  return await new Promise((resolve, reject) => {
+export function exif4(file) {
+  return  new Promise((resolve, reject) => {
     new ExifImage({ image: file }, function (error, exifData) {
       if (error) {
         if (error.code === 'NO_EXIF_SEGMENT') {

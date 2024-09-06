@@ -59,7 +59,7 @@ const distancePath = ref('')
 const imgBase64 = ref('')
 const fileName = ref('')
 const isLoad = ref(false)
-const fileStat = reactive({ size: 0, atimeMs: 0.0, birthtimeMs: 0.0, ctimeMs: 0.0, mtimeMs: 0.0 })
+const fileStat = reactive({size: 0, atimeMs: 0.0, birthtimeMs: 0.0, ctimeMs: 0.0, mtimeMs: 0.0, file: '' })
 const scanDir = () => {
   window.electron.ipcRenderer
     .invoke('dir', catalogPath.value)
@@ -116,6 +116,7 @@ const getFileStat = async (file) => {
   fileStat.ctimeMs = stat['ctimeMs']
   fileStat.mtimeMs = stat['mtimeMs']
   fileStat.size = stat['size']
+  fileStat['file'] = file
 }
 watch(catalogPath, () => {
   console.log(catalogPath.value)

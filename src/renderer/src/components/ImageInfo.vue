@@ -9,7 +9,7 @@
   import {computed} from "vue";
 
   const props = defineProps({
-    info: []
+    info: Array
   })
 
   const imgProps = computed(() => props.info)
@@ -30,6 +30,10 @@
 
   .prop-block {
     margin: 2px 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
   }
 
   .prop-block span {

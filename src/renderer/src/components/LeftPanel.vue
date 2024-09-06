@@ -9,18 +9,25 @@
       <div class="browse-btn" @click="getTargetDir">куда</div>
     </div>
     <div class="combos">
-      <SimpleSelect class="mark-combo" :items="marks" @selectionChanged="markChanged" />
-      <SimpleSelect class="model-combo" :items="models" @selectionChanged="modelChanged" />
+      <SimpleSelect class="mark-combo" :items="marks" @selection-changed="markChanged" />
+      <SimpleSelect class="model-combo" :items="models" @selection-changed="modelChanged" />
     </div>
     <div id="copy-btn" @click="copyFiles">Копировать</div>
     <ul id="output">
-      <li v-for="image in images" :key="image" :class="['image-item', {'selected': selectedImage === image}]" @click="changeImage(image)">{{ image.name }}</li>
+      <li
+        v-for="image in filteredImages"
+        :key="image"
+        :class="['image-item', { selected: selectedImage === image }]"
+        @click="changeImage(image)"
+      >
+        {{ image.name }}
+      </li>
     </ul>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import {computed, ref} from 'vue'
 import SimpleSelect from './SimpleSelect.vue'
 
 const emit = defineEmits(['changeSource', 'changeTarget', 'changeImage', 'copyFiles'])
@@ -28,19 +35,12 @@ const images = ref([])
 const sourceCatalogPath = ref('')
 const targetCatalogPath = ref('')
 const selectedImage = ref({})
-const exiff = ref([])
-const marks = ref([
-  {text: 'все марки', value: 'all'},
-  {text: 'марка 1', value: '1'},
-  {text: 'марка 2', value: '2'},
-])
+const marks = ref(['все марки'])
 
-const models = ref([
-  {text: 'все модели', value: 'all'},
-  {text: 'модель 1', value: '1'},
-  {text: 'модель 2', value: '2'},
+const models = ref(['все модели'])
 
-])
+const selectedMark = ref(undefined)
+const selectedModel = ref(undefined)
 
 const getSourceDir = async () => {
   const getDir = await window.electron.ipcRenderer.invoke('getDir').catch((err) => {
@@ -50,8 +50,21 @@ const getSourceDir = async () => {
   sourceCatalogPath.value = filePath
   emit('changeSource', filePath)
   scanDir(filePath)
-  getExif('D:\\ExampleElectron\\IMG_20180415_115550.jpg')
 }
+
+const filteredImages = computed(() => {
+  let result = images.value
+
+  if (selectedMark.value !== undefined && selectedMark.value !== 'все марки') {
+    result = result.filter(image => image.make === selectedMark.value)
+  }
+
+  if (selectedModel.value !== undefined && selectedModel.value !== 'все модели') {
+    result = result.filter(image => image.model === selectedModel.value)
+  }
+
+  return result
+})
 
 const getTargetDir = async () => {
   const getDir = await window.electron.ipcRenderer.invoke('getDir').catch((err) => {
@@ -62,24 +75,51 @@ const getTargetDir = async () => {
   emit('changeTarget', filePath)
 }
 
-const scanDir = (path) => {
+const scanDir = async (path) => {
+  images.value = []
+  marks.value = new Set(['все марки'])
+  models.value = new Set(['все модели'])
+
   window.electron.ipcRenderer
     .invoke('dir', path)
     .then((filePaths) => {
-      images.value = filePaths
-      console.log(images)
+      return filePaths.map((f) => {
+        return { path: f.path, name: f.name }
+      })
+    })
+    .then((files) => {
+      for(let file of files) {
+        getExif(file).then((info) => {
+          console.log(info)
+            file.make = info.make
+            file.model = info.model
+            images.value.push(file)
+            marks.value.add(file.make)
+            models.value.add(file.model)
+        })
+
+      } /*
+      images.value = filePaths.map(async (f) => {
+        const info = await getExif(f)
+        return { path: f.path, name: f.name, make: info.make, model: f.model }
+      })
+      marks.value = images.value.map((f) => ({ text: f.make, value: f.make }))
+      models.value = images.value.map((f) => ({ text: f.model, value: f.model }))
+      */
     })
     .catch(console.error)
+  // for (let file of images.value) {
+  //   getExif(file)
+  // }
+  console.log('images.value ->> ', images.value)
+
 }
 
-const getExif = (path) => {
-  window.electron.ipcRenderer
-    .invoke('exif', path)
-    .then((filePaths) => {
-      exiff.value.push(filePaths)
-      console.log(exiff.value)
-    })
-    .catch(console.error)
+const getExif = async (file) => {
+  const exifData = await window.electron.ipcRenderer
+    .invoke('exif', file.path + '\\' + file.name)
+
+  return exifData
 }
 const changeImage = (image) => {
   selectedImage.value = image
@@ -88,10 +128,12 @@ const changeImage = (image) => {
 
 const markChanged = (item) => {
   console.log(item)
+  selectedMark.value = item
 }
 
 const modelChanged = (item) => {
   console.log(item)
+  selectedModel.value = item
 }
 
 const copyFiles = () => {
@@ -103,8 +145,8 @@ const copyFiles = () => {
 .left-panel-wrapper {
   width: 400px;
   height: 100%;
-  background: rgba(110,110,110, 0.2);
-  border-right: 1px solid rgba(120,120,120, 0.2);
+  background: rgba(110, 110, 110, 0.2);
+  border-right: 1px solid rgba(120, 120, 120, 0.2);
 
   display: flex;
   flex-direction: column;
@@ -120,10 +162,11 @@ const copyFiles = () => {
   align-items: center;
 }
 
-.action > .browse-btn, #copy-btn {
+.action > .browse-btn,
+#copy-btn {
   padding: 2px 5px;
-  background: rgba(77,77,77,1);
-  border: 1px solid rgba(99,99,99,1);
+  background: rgba(77, 77, 77, 1);
+  border: 1px solid rgba(99, 99, 99, 1);
   font-weight: bold;
   font-size: 14px;
   width: 110px;
@@ -144,7 +187,8 @@ const copyFiles = () => {
   margin-right: 3px;
 }
 
-.mark-combo, .model-combo {
+.mark-combo,
+.model-combo {
   position: relative;
   overflow: hidden;
   overflow-y: visible;
@@ -159,8 +203,8 @@ const copyFiles = () => {
 
 .action > .path-value {
   padding: 2px 5px;
-  background: rgba(77,77,77,1);
-  border: 1px solid rgba(99,99,99,1);
+  background: rgba(77, 77, 77, 1);
+  border: 1px solid rgba(99, 99, 99, 1);
   font-weight: bold;
   font-size: 14px;
   height: 100%;
@@ -191,8 +235,8 @@ const copyFiles = () => {
   margin: 1px 5px;
 }
 
-#output .image-item:hover, #output .image-item.selected {
-  background: rgba(110,110,110, 0.4);
+#output .image-item:hover,
+#output .image-item.selected {
+  background: rgba(110, 110, 110, 0.4);
 }
-
 </style>
